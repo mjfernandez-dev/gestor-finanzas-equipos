@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Google OAuth credentials
 client_secret*.json
+
+# Claude Code
+.claude/
