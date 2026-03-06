@@ -4,25 +4,33 @@ import { useState } from 'react'
 import { Group, GroupMember, Transaction } from '@/lib/types'
 import TransactionItem from './TransactionItem'
 import ReportPaymentModal from './ReportPaymentModal'
+import GroupSelector from './GroupSelector'
+import UserMenu from './UserMenu'
 
 interface Props {
   group: Group
+  allGroups: Group[]
   membership: GroupMember
   balance: number
   recentTransactions: Transaction[]
 }
 
-export default function MemberDashboard({ group, membership, balance, recentTransactions }: Props) {
+export default function MemberDashboard({ group, allGroups, membership, balance, recentTransactions }: Props) {
   const [showPayment, setShowPayment] = useState(false)
   const isNegative = balance < 0
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Header */}
-      <div className="px-6 pt-10 pb-6">
-        <p className="text-gray-400 text-sm">{group.name}</p>
-        <h1 className="text-xl font-bold mt-1">{membership.display_name}</h1>
+      <div className="px-6 pt-10 pb-6 flex justify-between items-start">
+        <div>
+          <p className="text-gray-400 text-sm">{group.name}</p>
+          <h1 className="text-xl font-bold mt-1">{membership.display_name}</h1>
+        </div>
+        <UserMenu />
       </div>
+
+      <GroupSelector groups={allGroups} currentGroupId={group.id} />
 
       {/* Saldo */}
       <div className="mx-6 bg-gray-900 rounded-2xl p-6 flex flex-col items-center gap-1">
@@ -65,6 +73,7 @@ export default function MemberDashboard({ group, membership, balance, recentTran
         <ReportPaymentModal
           groupId={group.id}
           memberId={membership.id}
+          paymentAlias={group.payment_alias}
           onClose={() => setShowPayment(false)}
         />
       )}

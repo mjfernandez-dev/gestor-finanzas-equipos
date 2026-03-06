@@ -8,10 +8,11 @@ import { PaymentMethod } from '@/lib/types'
 interface Props {
   groupId: string
   memberId: string
+  paymentAlias: string | null
   onClose: () => void
 }
 
-export default function ReportPaymentModal({ groupId, memberId, onClose }: Props) {
+export default function ReportPaymentModal({ groupId, memberId, paymentAlias, onClose }: Props) {
   const [amount, setAmount] = useState('')
   const [method, setMethod] = useState<PaymentMethod>('transfer')
   const [loading, setLoading] = useState(false)
@@ -54,6 +55,13 @@ export default function ReportPaymentModal({ groupId, memberId, onClose }: Props
     <div className="fixed inset-0 bg-black/70 flex items-end justify-center z-50 p-4">
       <div className="bg-gray-900 rounded-2xl w-full max-w-sm p-6 flex flex-col gap-5">
         <h2 className="text-white font-bold text-lg">Reportar pago</h2>
+
+        {paymentAlias && (
+          <div className="bg-gray-800 rounded-xl px-4 py-3 flex flex-col gap-1">
+            <p className="text-gray-400 text-xs">Transferir a</p>
+            <p className="text-green-400 font-mono text-sm font-medium">{paymentAlias}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>

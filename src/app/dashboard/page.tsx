@@ -3,11 +3,18 @@ import { redirect } from 'next/navigation'
 import NoGroups from './components/NoGroups'
 import MemberDashboard from './components/MemberDashboard'
 import AdminDashboard from './components/AdminDashboard'
+import { Group } from '@/lib/types'
 
-export default async function DashboardPage() {
+interface Props {
+  searchParams: Promise<{ group?: string }>
+}
+
+export default async function DashboardPage({ searchParams }: Props) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
+
+  const { group: groupIdParam } = await searchParams
 
   // Buscar membresías del usuario
   const { data: memberships } = await supabase
@@ -20,9 +27,13 @@ export default async function DashboardPage() {
     return <NoGroups />
   }
 
-  // Por ahora tomamos el primer grupo (multi-grupo viene después)
-  const membership = memberships[0]
-  const group = membership.groups
+  // Seleccionar el grupo activo: por param o el primero
+  const membership = groupIdParam
+    ? (memberships.find(m => m.groups?.id === groupIdParam) ?? memberships[0])
+    : memberships[0]
+
+  const group = membership.groups as Group
+  const allGroups: Group[] = memberships.map(m => m.groups as Group)
 
   // Calcular saldo del miembro
   const { data: transactions } = await supabase
@@ -44,7 +55,6 @@ export default async function DashboardPage() {
     .limit(10)
 
   if (membership.role === 'admin') {
-    // Para admin: traer todos los miembros con sus saldos
     const { data: allMembers } = await supabase
       .from('group_members')
       .select('*')
@@ -74,6 +84,7 @@ export default async function DashboardPage() {
     return (
       <AdminDashboard
         group={group}
+        allGroups={allGroups}
         membership={membership}
         membersWithBalance={membersWithBalance}
         pendingTransactions={pendingTransactions ?? []}
@@ -86,6 +97,7 @@ export default async function DashboardPage() {
   return (
     <MemberDashboard
       group={group}
+      allGroups={allGroups}
       membership={membership}
       balance={balance}
       recentTransactions={recentTransactions ?? []}
