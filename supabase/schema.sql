@@ -17,7 +17,7 @@ create table public.groups (
   id uuid default gen_random_uuid() primary key,
   name text not null,
   payment_alias text,
-  invite_token text unique default substring(md5(random()::text), 1, 8) not null,
+  invite_token text unique default encode(gen_random_bytes(16), 'hex') not null,
   created_by uuid references public.profiles(id) on delete set null,
   created_at timestamptz default now() not null
 );
@@ -138,6 +138,23 @@ create policy "transactions_update" on public.transactions
       where group_id = transactions.group_id and user_id = auth.uid() and role = 'admin'
     )
   );
+
+-- =============================================
+-- FUNCIÓN: buscar grupo por invite_token (omite RLS intencionalmente)
+-- Solo devuelve id y name para no exponer datos sensibles del grupo
+-- =============================================
+
+create or replace function public.get_group_by_invite_token(p_token text)
+returns table (id uuid, name text)
+language sql
+security definer
+set search_path = public
+as $$
+  select g.id, g.name
+  from public.groups g
+  where g.invite_token = p_token
+  limit 1;
+$$;
 
 -- =============================================
 -- TRIGGER: crear perfil automaticamente al registrarse

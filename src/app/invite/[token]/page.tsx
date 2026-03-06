@@ -15,12 +15,11 @@ export default async function InvitePage({ params }: Props) {
     redirect(`/login?redirect=/invite/${token}`)
   }
 
-  // Buscar el grupo por token
-  const { data: group } = await supabase
-    .from('groups')
-    .select('*')
-    .eq('invite_token', token)
-    .single()
+  // Buscar el grupo por token usando función SECURITY DEFINER (omite RLS para esta consulta puntual)
+  const { data: groups } = await supabase
+    .rpc('get_group_by_invite_token', { p_token: token })
+
+  const group = groups?.[0] ?? null
 
   if (!group) {
     return (
