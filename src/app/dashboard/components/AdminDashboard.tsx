@@ -7,6 +7,7 @@ import CreateExpenseModal from './CreateExpenseModal'
 import AddVirtualMemberModal from './AddVirtualMemberModal'
 import GroupSelector from './GroupSelector'
 import UserMenu from './UserMenu'
+import EditGroupModal from './EditGroupModal'
 
 interface Props {
   group: Group
@@ -29,6 +30,7 @@ export default function AdminDashboard({
 }: Props) {
   const [showExpense, setShowExpense] = useState(false)
   const [showVirtualMember, setShowVirtualMember] = useState(false)
+  const [showEditGroup, setShowEditGroup] = useState(false)
   const [copied, setCopied] = useState(false)
   const sorted = [...membersWithBalance].sort((a, b) => a.balance - b.balance)
 
@@ -46,7 +48,16 @@ export default function AdminDashboard({
       <div className="px-6 pt-10 pb-4 flex justify-between items-start">
         <div>
           <p className="text-gray-400 text-sm">Administrador</p>
-          <h1 className="text-xl font-bold mt-1">{group.name}</h1>
+          <div className="flex items-center gap-2 mt-1">
+            <h1 className="text-xl font-bold">{group.name}</h1>
+            <button
+              onClick={() => setShowEditGroup(true)}
+              className="text-gray-500 hover:text-gray-300 transition-colors text-sm"
+              title="Editar grupo"
+            >
+              ✎
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -142,6 +153,13 @@ export default function AdminDashboard({
         <AddVirtualMemberModal
           groupId={group.id}
           onClose={() => setShowVirtualMember(false)}
+        />
+      )}
+
+      {showEditGroup && (
+        <EditGroupModal
+          group={group}
+          onClose={() => setShowEditGroup(false)}
         />
       )}
     </div>

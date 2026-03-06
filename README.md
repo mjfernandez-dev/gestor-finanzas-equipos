@@ -2,13 +2,12 @@
 
 Aplicacion web mobile-first para gestionar las finanzas de equipos amateur. Reemplaza el uso de Excel y WhatsApp para llevar cuentas. Funciona como una cuenta corriente por jugador dentro de cada grupo.
 
-<!-- TODO: agregar links cuando este deployado -->
-<!-- [Ver demo](https://gestor-finanzas.vercel.app) &nbsp;·&nbsp; [Repositorio](https://github.com/usuario/gestor-finanzas-equipos) -->
+[Ver demo](https://gestor-finanzas-equipos.vercel.app) &nbsp;·&nbsp; [Repositorio](https://github.com/mjfernandez-dev/gestor-finanzas-equipos)
 
 ## Funcionalidades
 
 **Para el administrador**
-- Crear grupos con alias/CBU de cobro
+- Crear y editar grupos (nombre y alias/CBU de cobro)
 - Registrar gastos: distribucion general, por asistencia o manual por jugador
 - Ver saldos de todos los miembros ordenados por deuda
 - Aprobar o rechazar pagos reportados por los jugadores
