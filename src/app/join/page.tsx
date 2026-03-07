@@ -61,7 +61,7 @@ export default function JoinPage() {
       .select('id')
       .eq('group_id', group.id)
       .eq('user_id', userId)
-      .single()
+      .maybeSingle()
 
     if (existing) {
       router.push('/dashboard')
