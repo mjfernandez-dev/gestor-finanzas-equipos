@@ -90,27 +90,30 @@ export default function CreateExpenseModal({ groupId, members, currentMemberId, 
       <div className="bg-slate-900 border-t border-slate-800 rounded-t-2xl w-full max-w-lg flex flex-col gap-4 p-6 pb-8">
         <div className="flex justify-between items-center">
           <h2 className="text-base font-semibold text-slate-100">Nuevo gasto</h2>
-          <button onClick={onClose} className="text-slate-600 hover:text-slate-400 transition-colors">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <button onClick={onClose} aria-label="Cerrar" className="text-slate-600 hover:text-slate-400 transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Descripcion *</label>
+          <label htmlFor="expense-desc" className="text-xs font-medium text-slate-500 uppercase tracking-wide">Descripcion *</label>
           <input
+            id="expense-desc"
             type="text"
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder="Ej: Cancha 15/03"
+            autoFocus
             className="bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 placeholder:text-slate-700 transition-colors"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Monto total *</label>
+          <label htmlFor="expense-amount" className="text-xs font-medium text-slate-500 uppercase tracking-wide">Monto total *</label>
           <input
+            id="expense-amount"
             type="number"
             value={amount}
             onChange={e => setAmount(e.target.value)}
@@ -176,7 +179,7 @@ export default function CreateExpenseModal({ groupId, members, currentMemberId, 
           </p>
         )}
 
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
 
         <div className="flex gap-3 mt-1">
           <button onClick={onClose} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-3 rounded-xl text-sm transition-colors">

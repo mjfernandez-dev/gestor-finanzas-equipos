@@ -44,18 +44,21 @@ export default function EditGroupModal({ group, onClose }: Props) {
         <h2 className="text-base font-semibold text-slate-100">Editar grupo</h2>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Nombre del equipo *</label>
+          <label htmlFor="edit-group-name" className="text-xs font-medium text-slate-500 uppercase tracking-wide">Nombre del equipo *</label>
           <input
+            id="edit-group-name"
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
+            autoFocus
             className="bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Alias para cobrar</label>
+          <label htmlFor="edit-group-alias" className="text-xs font-medium text-slate-500 uppercase tracking-wide">Alias para cobrar</label>
           <input
+            id="edit-group-alias"
             type="text"
             value={alias}
             onChange={e => setAlias(e.target.value)}
@@ -72,7 +75,7 @@ export default function EditGroupModal({ group, onClose }: Props) {
           <p className="text-xs text-slate-600">Compartilo para que los jugadores se unan</p>
         </div>
 
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
 
         <div className="flex gap-3 mt-1">
           <button onClick={onClose} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-3 rounded-xl text-sm transition-colors">

@@ -56,8 +56,8 @@ export default function ReportPaymentModal({ groupId, memberId, paymentAlias, on
       <div className="bg-slate-900 border-t border-slate-800 rounded-t-2xl w-full max-w-sm p-6 pb-8 flex flex-col gap-5">
         <div className="flex justify-between items-center">
           <h2 className="text-base font-semibold text-slate-100">Reportar pago</h2>
-          <button onClick={onClose} className="text-slate-600 hover:text-slate-400 transition-colors">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <button onClick={onClose} aria-label="Cerrar" className="text-slate-600 hover:text-slate-400 transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
@@ -72,13 +72,15 @@ export default function ReportPaymentModal({ groupId, memberId, paymentAlias, on
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2 block">Monto ($)</label>
+            <label htmlFor="payment-amount" className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2 block">Monto ($)</label>
             <input
+              id="payment-amount"
               type="number"
               inputMode="numeric"
               placeholder="0"
               value={amount}
               onChange={e => setAmount(e.target.value)}
+              autoFocus
               className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-xl font-mono font-bold placeholder:text-slate-700 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
             />
           </div>
@@ -94,7 +96,7 @@ export default function ReportPaymentModal({ groupId, memberId, paymentAlias, on
             </div>
           </div>
 
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
 
           <div className="flex gap-3 mt-1">
             <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 font-medium text-sm transition-colors">

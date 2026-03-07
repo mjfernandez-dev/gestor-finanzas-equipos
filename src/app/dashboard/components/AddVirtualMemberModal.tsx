@@ -48,8 +48,9 @@ export default function AddVirtualMemberModal({ groupId, onClose }: Props) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Nombre *</label>
+          <label htmlFor="virtual-name" className="text-xs font-medium text-slate-500 uppercase tracking-wide">Nombre *</label>
           <input
+            id="virtual-name"
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
@@ -59,7 +60,7 @@ export default function AddVirtualMemberModal({ groupId, onClose }: Props) {
           />
         </div>
 
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
 
         <div className="flex gap-3 mt-1">
           <button onClick={onClose} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-3 rounded-xl text-sm transition-colors">

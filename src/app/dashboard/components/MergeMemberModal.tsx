@@ -51,10 +51,12 @@ export default function MergeMemberModal({ source, allMembers, onClose }: Props)
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Transferir historial a</label>
+          <label htmlFor="merge-target" className="text-xs font-medium text-slate-500 uppercase tracking-wide">Transferir historial a</label>
           <select
+            id="merge-target"
             value={targetId}
             onChange={e => setTargetId(e.target.value)}
+            autoFocus
             className="bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
           >
             <option value="">Seleccionar miembro...</option>
@@ -64,7 +66,7 @@ export default function MergeMemberModal({ source, allMembers, onClose }: Props)
           </select>
         </div>
 
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
 
         <div className="flex gap-3">
           <button onClick={onClose} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-3 rounded-xl text-sm transition-colors">

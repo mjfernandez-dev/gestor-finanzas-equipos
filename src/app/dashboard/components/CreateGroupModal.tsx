@@ -67,19 +67,22 @@ export default function CreateGroupModal({ onClose }: { onClose: () => void }) {
         <h2 className="text-base font-semibold text-slate-100">Crear grupo</h2>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Nombre del equipo *</label>
+          <label htmlFor="create-group-name" className="text-xs font-medium text-slate-500 uppercase tracking-wide">Nombre del equipo *</label>
           <input
+            id="create-group-name"
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Ej: Los Pibes FC"
+            autoFocus
             className="bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 placeholder:text-slate-700 transition-colors"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Alias para cobrar</label>
+          <label htmlFor="create-group-alias" className="text-xs font-medium text-slate-500 uppercase tracking-wide">Alias para cobrar</label>
           <input
+            id="create-group-alias"
             type="text"
             value={alias}
             onChange={e => setAlias(e.target.value)}
@@ -88,7 +91,7 @@ export default function CreateGroupModal({ onClose }: { onClose: () => void }) {
           />
         </div>
 
-        {error && <p className="text-red-400 text-sm">{error}</p>}
+        {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}
 
         <div className="flex gap-3 mt-1">
           <button onClick={onClose} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-3 rounded-xl text-sm transition-colors">
