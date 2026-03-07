@@ -23,18 +23,18 @@ export default function TransactionActions({ transactionId }: Props) {
   }
 
   return (
-    <div className="flex gap-2 mt-2">
+    <div className="flex gap-2 mt-3 pt-3 border-t border-slate-800">
       <button
         onClick={() => handle('reject')}
         disabled={loading !== null}
-        className="flex-1 py-1.5 rounded-lg bg-red-900/40 hover:bg-red-900/60 text-red-400 text-xs font-medium disabled:opacity-50 transition-colors"
+        className="flex-1 py-1.5 rounded-lg bg-red-500/8 hover:bg-red-500/15 border border-red-500/20 text-red-400 text-xs font-medium disabled:opacity-40 transition-colors"
       >
         {loading === 'reject' ? '...' : 'Rechazar'}
       </button>
       <button
         onClick={() => handle('approve')}
         disabled={loading !== null}
-        className="flex-1 py-1.5 rounded-lg bg-green-900/40 hover:bg-green-900/60 text-green-400 text-xs font-medium disabled:opacity-50 transition-colors"
+        className="flex-1 py-1.5 rounded-lg bg-emerald-500/8 hover:bg-emerald-500/15 border border-emerald-500/20 text-emerald-400 text-xs font-medium disabled:opacity-40 transition-colors"
       >
         {loading === 'approve' ? '...' : 'Aprobar'}
       </button>

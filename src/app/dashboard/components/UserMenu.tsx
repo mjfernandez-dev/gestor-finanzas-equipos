@@ -50,40 +50,44 @@ export default function UserMenu() {
   }
 
   return (
-    <div ref={ref} className="relative mt-1">
+    <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-9 h-9 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white transition-colors text-lg"
+        className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-200 transition-colors"
       >
-        ⋮
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <circle cx="8" cy="3" r="1.5"/>
+          <circle cx="8" cy="8" r="1.5"/>
+          <circle cx="8" cy="13" r="1.5"/>
+        </svg>
       </button>
 
       {open && (
-        <div className="absolute right-0 top-11 bg-gray-800 rounded-xl shadow-xl w-48 flex flex-col overflow-hidden z-40">
+        <div className="absolute right-0 top-11 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl shadow-black/40 w-48 flex flex-col overflow-hidden z-40">
           {!isAnonymous ? (
             <>
               <button
                 onClick={() => { setOpen(false); setShowCreateGroup(true) }}
-                className="px-4 py-3 text-sm text-white hover:bg-gray-700 text-left transition-colors"
+                className="px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 text-left transition-colors"
               >
                 + Nuevo grupo
               </button>
-              <div className="h-px bg-gray-700" />
+              <div className="h-px bg-slate-800" />
             </>
           ) : (
             <>
               <button
                 onClick={() => { setOpen(false); handleLinkGoogle() }}
-                className="px-4 py-3 text-sm text-white hover:bg-gray-700 text-left transition-colors"
+                className="px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 text-left transition-colors"
               >
                 Crear mi equipo
               </button>
-              <div className="h-px bg-gray-700" />
+              <div className="h-px bg-slate-800" />
             </>
           )}
           <button
             onClick={handleLogout}
-            className="px-4 py-3 text-sm text-red-400 hover:bg-gray-700 text-left transition-colors"
+            className="px-4 py-3 text-sm text-red-400 hover:bg-slate-800 text-left transition-colors"
           >
             Cerrar sesión
           </button>

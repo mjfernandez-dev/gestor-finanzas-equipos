@@ -36,39 +36,30 @@ export default function CreateExpenseModal({ groupId, members, currentMemberId, 
   function getAmountPerMember(): { memberId: string; amount: number }[] {
     const total = parseFloat(amount)
     if (isNaN(total) || total <= 0) return []
-
     if (type === 'general') {
-      const perPerson = total / members.length
-      return members.map(m => ({ memberId: m.id, amount: perPerson }))
+      return members.map(m => ({ memberId: m.id, amount: total / members.length }))
     }
-
     if (type === 'asistencia') {
       const present = members.filter(m => attendees.has(m.id))
       if (present.length === 0) return []
-      const perPerson = total / present.length
-      return present.map(m => ({ memberId: m.id, amount: perPerson }))
+      return present.map(m => ({ memberId: m.id, amount: total / present.length }))
     }
-
     if (type === 'manual') {
       return [{ memberId: manualMemberId, amount: total }]
     }
-
     return []
   }
 
   async function handleCreate() {
     const splits = getAmountPerMember()
     if (!description.trim() || splits.length === 0) {
-      setError('Completá todos los campos.')
+      setError('Completa todos los campos.')
       return
     }
-
     setLoading(true)
     setError('')
-
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
-
     const transactions = splits.map(s => ({
       group_id: groupId,
       member_id: s.memberId,
@@ -78,89 +69,83 @@ export default function CreateExpenseModal({ groupId, members, currentMemberId, 
       status: 'approved' as const,
       created_by: user.id,
     }))
-
     const { error: txError } = await supabase.from('transactions').insert(transactions)
-
     if (txError) {
       setError(txError.message)
       setLoading(false)
       return
     }
-
     router.refresh()
     onClose()
   }
 
   const splits = getAmountPerMember()
   const total = parseFloat(amount)
+  const typeBtnCls = (active: boolean) =>
+    'flex-1 py-2 rounded-xl text-xs font-medium transition-colors ' +
+    (active ? 'bg-emerald-600 text-white' : 'bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700')
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-end justify-center z-50 p-0">
-      <div className="bg-gray-900 rounded-t-2xl w-full max-w-lg flex flex-col gap-4 p-6 pb-8">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
+      <div className="bg-slate-900 border-t border-slate-800 rounded-t-2xl w-full max-w-lg flex flex-col gap-4 p-6 pb-8">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-bold text-white">Nuevo gasto</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-white text-xl">✕</button>
+          <h2 className="text-base font-semibold text-slate-100">Nuevo gasto</h2>
+          <button onClick={onClose} className="text-slate-600 hover:text-slate-400 transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
 
-        {/* Descripción */}
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-400">Descripción *</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Descripcion *</label>
           <input
             type="text"
             value={description}
             onChange={e => setDescription(e.target.value)}
             placeholder="Ej: Cancha 15/03"
-            className="bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-600"
+            className="bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 placeholder:text-slate-700 transition-colors"
           />
         </div>
 
-        {/* Monto */}
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-400">Monto total *</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Monto total *</label>
           <input
             type="number"
             value={amount}
             onChange={e => setAmount(e.target.value)}
             placeholder="0"
             min="0"
-            className="bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-600"
+            className="bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 placeholder:text-slate-700 transition-colors"
           />
         </div>
 
-        {/* Tipo */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs text-gray-400">Tipo de distribución</label>
+          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Distribucion</label>
           <div className="flex gap-2">
             {(['general', 'asistencia', 'manual'] as ExpenseType[]).map(t => (
-              <button
-                key={t}
-                onClick={() => setType(t)}
-                className={`flex-1 py-2 rounded-xl text-xs font-medium transition-colors ${
-                  type === t ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-400'
-                }`}
-              >
+              <button key={t} onClick={() => setType(t)} className={typeBtnCls(type === t)}>
                 {t === 'general' ? 'General' : t === 'asistencia' ? 'Asistencia' : 'Manual'}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Asistencia: checkboxes */}
         {type === 'asistencia' && (
           <div className="flex flex-col gap-2">
-            <label className="text-xs text-gray-400">¿Quién asistió?</label>
+            <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Quien asistio</label>
             <div className="flex flex-col gap-1 max-h-40 overflow-y-auto">
               {members.map(m => (
-                <label key={m.id} className="flex items-center gap-3 py-2 px-3 bg-gray-800 rounded-xl cursor-pointer">
+                <label key={m.id} className="flex items-center gap-3 py-2 px-3 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer">
                   <input
                     type="checkbox"
                     checked={attendees.has(m.id)}
                     onChange={() => toggleAttendee(m.id)}
-                    className="accent-green-600"
+                    className="accent-emerald-600"
                   />
-                  <span className="text-sm text-white">{m.display_name}</span>
+                  <span className="text-sm text-slate-200">{m.display_name}</span>
                   {!isNaN(total) && total > 0 && attendees.has(m.id) && attendees.size > 0 && (
-                    <span className="text-xs text-gray-400 ml-auto">
+                    <span className="text-xs text-slate-500 ml-auto font-mono">
                       ${(total / attendees.size).toLocaleString('es-AR', { maximumFractionDigits: 2 })}
                     </span>
                   )}
@@ -170,14 +155,13 @@ export default function CreateExpenseModal({ groupId, members, currentMemberId, 
           </div>
         )}
 
-        {/* Manual: selector de miembro */}
         {type === 'manual' && (
-          <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-400">Jugador</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Jugador</label>
             <select
               value={manualMemberId}
               onChange={e => setManualMemberId(e.target.value)}
-              className="bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-600"
+              className="bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
             >
               {members.map(m => (
                 <option key={m.id} value={m.id}>{m.display_name}</option>
@@ -186,26 +170,22 @@ export default function CreateExpenseModal({ groupId, members, currentMemberId, 
           </div>
         )}
 
-        {/* Preview */}
         {splits.length > 0 && !isNaN(total) && type === 'general' && (
-          <p className="text-xs text-gray-400">
-            ${(total / members.length).toLocaleString('es-AR', { maximumFractionDigits: 2 })} por jugador × {members.length} miembros
+          <p className="text-xs text-slate-500">
+            ${(total / members.length).toLocaleString('es-AR', { maximumFractionDigits: 2 })} por jugador x {members.length} miembros
           </p>
         )}
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
 
         <div className="flex gap-3 mt-1">
-          <button
-            onClick={onClose}
-            className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl text-sm transition-colors"
-          >
+          <button onClick={onClose} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-3 rounded-xl text-sm transition-colors">
             Cancelar
           </button>
           <button
             onClick={handleCreate}
             disabled={loading || !description.trim() || !amount}
-            className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl text-sm transition-colors"
+            className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-medium py-3 rounded-xl text-sm transition-colors"
           >
             {loading ? 'Guardando...' : 'Crear gasto'}
           </button>

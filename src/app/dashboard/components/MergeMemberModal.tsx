@@ -31,7 +31,7 @@ export default function MergeMemberModal({ source, allMembers, onClose }: Props)
     })
 
     if (rpcError) {
-      setError('Error al fusionar. Intentá de nuevo.')
+      setError('Error al fusionar. Intenta de nuevo.')
       setLoading(false)
       return
     }
@@ -41,21 +41,21 @@ export default function MergeMemberModal({ source, allMembers, onClose }: Props)
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-6 z-50">
-      <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white">Fusionar miembro</h2>
-          <p className="text-sm text-gray-400 mt-1">
-            Las transacciones de <span className="text-white font-medium">{source.display_name}</span> se transferirán al miembro seleccionado y luego se eliminará.
+          <h2 className="text-base font-semibold text-slate-100">Fusionar miembro</h2>
+          <p className="text-sm text-slate-500 mt-1">
+            Las transacciones de <span className="text-slate-300 font-medium">{source.display_name}</span> se transferiran al miembro seleccionado y luego se eliminara.
           </p>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <label className="text-sm text-gray-400">Transferir historial a</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Transferir historial a</label>
           <select
             value={targetId}
             onChange={e => setTargetId(e.target.value)}
-            className="bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-600"
+            className="bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-colors"
           >
             <option value="">Seleccionar miembro...</option>
             {options.map(m => (
@@ -67,16 +67,13 @@ export default function MergeMemberModal({ source, allMembers, onClose }: Props)
         {error && <p className="text-red-400 text-sm">{error}</p>}
 
         <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl text-sm transition-colors"
-          >
+          <button onClick={onClose} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-3 rounded-xl text-sm transition-colors">
             Cancelar
           </button>
           <button
             onClick={handleMerge}
             disabled={loading || !targetId}
-            className="flex-1 bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl text-sm transition-colors"
+            className="flex-1 bg-amber-600 hover:bg-amber-500 disabled:opacity-40 text-white font-medium py-3 rounded-xl text-sm transition-colors"
           >
             {loading ? 'Fusionando...' : 'Fusionar'}
           </button>

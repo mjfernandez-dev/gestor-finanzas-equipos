@@ -88,19 +88,25 @@ export default function JoinPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950">
-      <div className="bg-gray-900 rounded-2xl p-8 w-full max-w-sm flex flex-col gap-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white">Unirme a un equipo</h1>
-          <p className="text-gray-400 mt-1 text-sm">
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <div className="w-full max-w-xs flex flex-col gap-7">
+
+        <div>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1">
+            {step === 'code' ? 'Paso 1 de 2' : 'Paso 2 de 2'}
+          </p>
+          <h1 className="text-xl font-semibold text-slate-100">
+            {step === 'code' ? 'Ingresá el código' : `Unirte a ${group?.name}`}
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
             {step === 'code'
-              ? 'Ingresá el código que te dio el admin'
-              : `Te unís a ${group?.name}`}
+              ? 'El admin del equipo te lo compartió'
+              : '¿Cómo te conocen en el grupo?'}
           </p>
         </div>
 
         {step === 'code' && (
-          <>
+          <div className="flex flex-col gap-4">
             <input
               type="text"
               value={code}
@@ -108,21 +114,21 @@ export default function JoinPage() {
               onKeyDown={e => e.key === 'Enter' && handleLookupCode()}
               placeholder="LEON25"
               maxLength={6}
-              className="bg-gray-800 text-white text-center text-2xl font-mono tracking-widest rounded-xl px-4 py-4 outline-none focus:ring-2 focus:ring-green-600 uppercase"
+              className="bg-slate-900 border border-slate-800 text-slate-100 text-center text-3xl font-mono tracking-[0.25em] rounded-xl px-4 py-5 outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 uppercase placeholder:text-slate-700 transition-colors"
             />
             {error && <p className="text-red-400 text-sm text-center">{error}</p>}
             <button
               onClick={handleLookupCode}
               disabled={loading || !code.trim()}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors text-sm"
             >
               {loading ? 'Buscando...' : 'Continuar'}
             </button>
-          </>
+          </div>
         )}
 
         {step === 'name' && (
-          <>
+          <div className="flex flex-col gap-4">
             <input
               type="text"
               value={displayName}
@@ -130,31 +136,32 @@ export default function JoinPage() {
               onKeyDown={e => e.key === 'Enter' && handleJoin()}
               placeholder="Tu nombre o apodo"
               autoFocus
-              className="bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-600"
+              className="bg-slate-900 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 placeholder:text-slate-600 transition-colors"
             />
             {error && <p className="text-red-400 text-sm text-center">{error}</p>}
             <button
               onClick={handleJoin}
               disabled={loading || !displayName.trim()}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl transition-colors"
+              className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors text-sm"
             >
-              {loading ? 'Uniéndome...' : 'Unirme'}
+              {loading ? 'Uniéndome...' : 'Unirme al equipo'}
             </button>
             <button
               onClick={() => { setStep('code'); setGroup(null); setError('') }}
-              className="text-sm text-gray-500 hover:text-gray-300 text-center transition-colors"
+              className="text-sm text-slate-600 hover:text-slate-400 text-center transition-colors"
             >
-              Cambiar código
+              ← Cambiar código
             </button>
-          </>
+          </div>
         )}
 
         <a
           href="/login"
-          className="text-sm text-gray-500 hover:text-gray-300 text-center transition-colors"
+          className="text-sm text-slate-600 hover:text-slate-400 text-center transition-colors"
         >
           Soy admin, entrar con Google
         </a>
+
       </div>
     </div>
   )

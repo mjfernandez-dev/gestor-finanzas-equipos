@@ -40,36 +40,35 @@ export default function AddVirtualMemberModal({ groupId, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-6 z-50">
-      <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4">
-        <h2 className="text-lg font-bold text-white">Agregar jugador virtual</h2>
-        <p className="text-gray-400 text-xs -mt-2">Para jugadores que no usan la app. Vos gestionas sus pagos.</p>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-sm flex flex-col gap-4">
+        <div>
+          <h2 className="text-base font-semibold text-slate-100">Jugador virtual</h2>
+          <p className="text-slate-500 text-xs mt-1">Para jugadores que no usan la app. Vos gestionas sus pagos.</p>
+        </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-400">Nombre *</label>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Nombre *</label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             placeholder="Ej: Juan Perez"
             autoFocus
-            className="bg-gray-800 text-white rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-green-600"
+            className="bg-slate-950 border border-slate-800 text-slate-100 rounded-xl px-4 py-3 text-sm outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 placeholder:text-slate-700 transition-colors"
           />
         </div>
 
         {error && <p className="text-red-400 text-sm">{error}</p>}
 
         <div className="flex gap-3 mt-1">
-          <button
-            onClick={onClose}
-            className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl text-sm transition-colors"
-          >
+          <button onClick={onClose} className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-400 py-3 rounded-xl text-sm transition-colors">
             Cancelar
           </button>
           <button
             onClick={handleCreate}
             disabled={loading || !name.trim()}
-            className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl text-sm transition-colors"
+            className="flex-1 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-medium py-3 rounded-xl text-sm transition-colors"
           >
             {loading ? 'Agregando...' : 'Agregar'}
           </button>
