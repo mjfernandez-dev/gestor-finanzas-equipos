@@ -67,6 +67,12 @@ export default function EditGroupModal({ group, onClose }: Props) {
           />
         </div>
 
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-400">Código del equipo</label>
+          <p className="text-2xl font-mono font-bold tracking-widest text-green-400 bg-gray-800 rounded-xl px-4 py-3 text-center">{group.join_code}</p>
+          <p className="text-xs text-gray-500">Compartí este código para que los jugadores se unan</p>
+        </div>
+
         {error && <p className="text-red-400 text-sm">{error}</p>}
 
         <div className="flex gap-3 mt-1">

@@ -37,6 +37,19 @@ function LoginForm() {
           </svg>
           Continuar con Google
         </button>
+
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-gray-800" />
+          <span className="text-xs text-gray-600">o</span>
+          <div className="flex-1 h-px bg-gray-800" />
+        </div>
+
+        <a
+          href="/join"
+          className="flex items-center justify-center w-full bg-gray-800 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-xl transition-colors text-sm"
+        >
+          Unirme a un equipo con código
+        </a>
       </div>
     </div>
   )

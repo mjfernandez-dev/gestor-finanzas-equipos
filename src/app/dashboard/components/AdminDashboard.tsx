@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { Group, GroupMember, GroupMemberWithBalance, Transaction } from '@/lib/types'
 import TransactionItem from './TransactionItem'
 import CreateExpenseModal from './CreateExpenseModal'
@@ -8,6 +10,7 @@ import AddVirtualMemberModal from './AddVirtualMemberModal'
 import GroupSelector from './GroupSelector'
 import UserMenu from './UserMenu'
 import EditGroupModal from './EditGroupModal'
+import MergeMemberModal from './MergeMemberModal'
 
 interface Props {
   group: Group
@@ -31,12 +34,21 @@ export default function AdminDashboard({
   const [showExpense, setShowExpense] = useState(false)
   const [showVirtualMember, setShowVirtualMember] = useState(false)
   const [showEditGroup, setShowEditGroup] = useState(false)
+  const [showMerge, setShowMerge] = useState<GroupMemberWithBalance | null>(null)
   const [copied, setCopied] = useState(false)
   const sorted = [...membersWithBalance].sort((a, b) => a.balance - b.balance)
+  const router = useRouter()
+  const supabase = createClient()
 
-  function copyInviteLink() {
-    const url = `${window.location.origin}/invite/${group.invite_token}`
-    navigator.clipboard.writeText(url)
+  async function handleDelete(memberId: string) {
+    if (!window.confirm('¿Eliminar este miembro? Se borrarán sus transacciones.')) return
+    const { error } = await supabase.rpc('delete_member', { p_member_id: memberId })
+    if (error) { alert('Error al eliminar. Intentá de nuevo.'); return }
+    router.refresh()
+  }
+
+  function copyJoinCode() {
+    navigator.clipboard.writeText(group.join_code)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -111,28 +123,46 @@ export default function AdminDashboard({
         </div>
         <div className="flex flex-col gap-2">
           {sorted.map(m => (
-            <div key={m.id} className="bg-gray-900 rounded-xl px-4 py-3 flex justify-between items-center">
-              <div>
-                <p className="text-sm font-medium text-white">{m.display_name}</p>
+            <div key={m.id} className="bg-gray-900 rounded-xl px-4 py-3 flex justify-between items-center gap-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">{m.display_name}</p>
                 {m.is_virtual && <p className="text-xs text-gray-500">Virtual</p>}
               </div>
-              <p className={`text-sm font-bold ${m.balance < 0 ? 'text-red-400' : m.balance > 0 ? 'text-green-400' : 'text-gray-400'}`}>
+              <p className={`text-sm font-bold shrink-0 ${m.balance < 0 ? 'text-red-400' : m.balance > 0 ? 'text-green-400' : 'text-gray-400'}`}>
                 {m.balance < 0 ? '-' : m.balance > 0 ? '+' : ''}${Math.abs(m.balance).toLocaleString('es-AR')}
               </p>
+              {m.id !== membership.id && (
+                <div className="flex gap-1 shrink-0">
+                  <button
+                    onClick={() => setShowMerge(m)}
+                    className="text-xs text-gray-500 hover:text-yellow-400 bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded-lg transition-colors"
+                    title="Fusionar con otro miembro"
+                  >
+                    ⇄
+                  </button>
+                  <button
+                    onClick={() => handleDelete(m.id)}
+                    className="text-xs text-gray-500 hover:text-red-400 bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded-lg transition-colors"
+                    title="Eliminar miembro"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Link de invitación */}
+      {/* Código de unión */}
       <div className="mx-6 mt-5">
         <div className="bg-gray-900 rounded-xl px-4 py-3 flex justify-between items-center gap-3">
-          <div className="min-w-0">
-            <p className="text-xs text-gray-400 mb-1">Link de invitación</p>
-            <p className="text-sm text-green-400 truncate">/invite/{group.invite_token}</p>
+          <div>
+            <p className="text-xs text-gray-400 mb-1">Código del equipo</p>
+            <p className="text-2xl font-mono font-bold tracking-widest text-green-400">{group.join_code}</p>
           </div>
           <button
-            onClick={copyInviteLink}
+            onClick={copyJoinCode}
             className="shrink-0 text-xs font-medium text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg transition-colors"
           >
             {copied ? 'Copiado' : 'Copiar'}
@@ -160,6 +190,14 @@ export default function AdminDashboard({
         <EditGroupModal
           group={group}
           onClose={() => setShowEditGroup(false)}
+        />
+      )}
+
+      {showMerge && (
+        <MergeMemberModal
+          source={showMerge}
+          allMembers={membersWithBalance}
+          onClose={() => setShowMerge(null)}
         />
       )}
     </div>

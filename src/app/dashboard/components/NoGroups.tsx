@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import CreateGroupModal from './CreateGroupModal'
 
-export default function NoGroups() {
+export default function NoGroups({ isAnonymous }: { isAnonymous: boolean }) {
   const [showCreate, setShowCreate] = useState(false)
 
   return (
@@ -14,16 +14,21 @@ export default function NoGroups() {
           <p className="text-gray-400 mt-1 text-sm">Todavía no pertenecés a ningún grupo</p>
         </div>
 
-        <button
-          onClick={() => setShowCreate(true)}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-xl transition-colors"
-        >
-          Crear grupo
-        </button>
+        {!isAnonymous && (
+          <button
+            onClick={() => setShowCreate(true)}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-xl transition-colors"
+          >
+            Crear grupo
+          </button>
+        )}
 
-        <p className="text-gray-500 text-sm">
-          ¿Tenés un link de invitación? Abrilo desde el navegador para unirte.
-        </p>
+        <a
+          href="/join"
+          className="w-full bg-gray-800 hover:bg-gray-700 text-white font-medium py-3 rounded-xl transition-colors text-sm flex items-center justify-center"
+        >
+          Unirme con código de equipo
+        </a>
       </div>
 
       {showCreate && <CreateGroupModal onClose={() => setShowCreate(false)} />}

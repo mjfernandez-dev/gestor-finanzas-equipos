@@ -16,6 +16,7 @@ export interface Group {
   name: string
   payment_alias: string | null
   invite_token: string
+  join_code: string
   created_by: string | null
   created_at: string
 }

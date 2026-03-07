@@ -24,7 +24,7 @@ export default async function DashboardPage({ searchParams }: Props) {
     .order('created_at', { ascending: false })
 
   if (!memberships || memberships.length === 0) {
-    return <NoGroups />
+    return <NoGroups isAnonymous={user.is_anonymous ?? false} />
   }
 
   // Seleccionar el grupo activo: por param o el primero
