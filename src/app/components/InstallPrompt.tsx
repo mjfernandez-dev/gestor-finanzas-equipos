@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -8,40 +9,43 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export default function InstallPrompt() {
-  const [promptEvent, setPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
   const [isIos, setIsIos] = useState(false);
+  const promptRef = useRef<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    // No mostrar si ya fue descartado o instalado
     if (localStorage.getItem("pwa-install-dismissed")) return;
+    if (window.matchMedia("(display-mode: standalone)").matches) return;
 
-    // Detectar iOS (Safari no dispara beforeinstallprompt)
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
-
-    if (isStandalone) return; // Ya está instalada
-
-    if (ios) {
-      setIsIos(true);
-      setVisible(true);
-      return;
-    }
 
     const handler = (e: Event) => {
       e.preventDefault();
-      setPromptEvent(e as BeforeInstallPromptEvent);
+      promptRef.current = e as BeforeInstallPromptEvent;
       setVisible(true);
     };
 
     window.addEventListener("beforeinstallprompt", handler);
+
+    if (ios) {
+      // rAF: setState en callback, no en el cuerpo del efecto
+      const id = requestAnimationFrame(() => {
+        setIsIos(true);
+        setVisible(true);
+      });
+      return () => {
+        cancelAnimationFrame(id);
+        window.removeEventListener("beforeinstallprompt", handler);
+      };
+    }
+
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
   const handleInstall = async () => {
-    if (!promptEvent) return;
-    await promptEvent.prompt();
-    const { outcome } = await promptEvent.userChoice;
+    if (!promptRef.current) return;
+    await promptRef.current.prompt();
+    const { outcome } = await promptRef.current.userChoice;
     if (outcome === "accepted") {
       localStorage.setItem("pwa-install-dismissed", "1");
     }
@@ -59,11 +63,12 @@ export default function InstallPrompt() {
     <div className="fixed bottom-4 left-4 right-4 z-50 max-w-sm mx-auto">
       <div className="bg-slate-800 border border-slate-700 rounded-2xl p-4 shadow-xl">
         <div className="flex items-start gap-3">
-          {/* Ícono */}
-          <img
+          <Image
             src="/icons/icon-192.png"
             alt="App icon"
-            className="w-12 h-12 rounded-xl flex-shrink-0"
+            width={48}
+            height={48}
+            className="rounded-xl flex-shrink-0"
           />
 
           <div className="flex-1 min-w-0">
@@ -76,7 +81,6 @@ export default function InstallPrompt() {
                 : "Acceso rápido desde tu pantalla de inicio, sin abrir el browser."}
             </p>
 
-            {/* iOS: solo botón cerrar */}
             {isIos ? (
               <button
                 onClick={handleDismiss}
@@ -102,14 +106,13 @@ export default function InstallPrompt() {
             )}
           </div>
 
-          {/* X */}
           <button
             onClick={handleDismiss}
             className="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0 mt-0.5"
             aria-label="Cerrar"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M4.293 4.293a1 1 0 011.414 0L8 6.586l2.293-2.293a1 1 0 111.414 1.414L9.414 8l2.293 2.293a1 1 0 01-1.414 1.414L8 9.414l-2.293 2.293a1 1 0 01-1.414-1.414L6.586 8 4.293 5.707a1 1 0 010-1.414z"/>
+              <path d="M4.293 4.293a1 1 0 011.414 0L8 6.586l2.293-2.293a1 1 0 111.414 1.414L9.414 8l2.293 2.293a1 1 0 01-1.414 1.414L8 9.414l-2.293 2.293a1 1 0 01-1.414-1.414L6.586 8 4.293 5.707a1 1 0 010-1.414z" />
             </svg>
           </button>
         </div>
