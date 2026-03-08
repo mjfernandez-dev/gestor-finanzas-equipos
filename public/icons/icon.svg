@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fondo -->
+  <rect width="512" height="512" rx="96" fill="#020617"/>
+
+  <!-- Persona izquierda -->
+  <circle cx="172" cy="188" r="48" fill="#334155"/>
+  <path d="M88 352 Q172 304 256 352" stroke="#334155" stroke-width="56" stroke-linecap="round" fill="none"/>
+
+  <!-- Persona derecha -->
+  <circle cx="340" cy="188" r="48" fill="#334155"/>
+  <path d="M256 352 Q340 304 424 352" stroke="#334155" stroke-width="56" stroke-linecap="round" fill="none"/>
+
+  <!-- Persona central (adelante) -->
+  <circle cx="256" cy="168" r="58" fill="#64748b"/>
+  <path d="M148 352 Q256 296 364 352" stroke="#64748b" stroke-width="64" stroke-linecap="round" fill="none"/>
+
+  <!-- Moneda (badge inferior derecho) -->
+  <circle cx="362" cy="358" r="82" fill="#020617"/>
+  <circle cx="362" cy="358" r="72" fill="#d97706"/>
+  <circle cx="362" cy="358" r="60" fill="#f59e0b"/>
+  <text x="362" y="385"
+        text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-weight="bold"
+        font-size="74"
+        fill="#78350f">$</text>
+</svg>
