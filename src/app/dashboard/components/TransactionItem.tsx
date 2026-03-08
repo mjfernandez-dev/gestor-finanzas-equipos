@@ -4,9 +4,10 @@ import TransactionActions from './TransactionActions'
 interface Props {
   transaction: Transaction
   showActions?: boolean
+  memberName?: string
 }
 
-export default function TransactionItem({ transaction, showActions }: Props) {
+export default function TransactionItem({ transaction, showActions, memberName }: Props) {
   const isCredit = transaction.type === 'credit'
   const isPending = transaction.status === 'pending'
 
@@ -15,7 +16,10 @@ export default function TransactionItem({ transaction, showActions }: Props) {
       <div className="flex justify-between items-center gap-3">
         <div className="flex flex-col gap-0.5 min-w-0">
           <p className="text-sm text-slate-200 truncate">
-            {transaction.description ?? (isCredit ? 'Pago' : 'Gasto')}
+            {memberName
+              ? <><span className="text-slate-100 font-medium">{memberName}</span> <span className="text-slate-500">·</span> {transaction.description ?? (isCredit ? 'Pago' : 'Gasto')}</>
+              : (transaction.description ?? (isCredit ? 'Pago' : 'Gasto'))
+            }
           </p>
           <div className="flex gap-2 items-center flex-wrap">
             <p className="text-xs text-slate-600">

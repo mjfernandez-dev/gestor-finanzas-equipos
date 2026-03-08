@@ -89,6 +89,7 @@ export default async function DashboardPage({ searchParams }: Props) {
         membersWithBalance={membersWithBalance}
         pendingTransactions={pendingTransactions ?? []}
         recentTransactions={recentTransactions ?? []}
+        allTransactions={[...(allTransactions ?? []), ...(pendingTransactions ?? [])]}
         balance={balance}
       />
     )

@@ -19,6 +19,7 @@ interface Props {
   membersWithBalance: GroupMemberWithBalance[]
   pendingTransactions: Transaction[]
   recentTransactions: Transaction[]
+  allTransactions: Transaction[]
   balance: number
 }
 
@@ -28,7 +29,7 @@ export default function AdminDashboard({
   membership,
   membersWithBalance,
   pendingTransactions,
-  recentTransactions,
+  allTransactions,
   balance,
 }: Props) {
   const [showExpense, setShowExpense] = useState(false)
@@ -36,6 +37,7 @@ export default function AdminDashboard({
   const [showEditGroup, setShowEditGroup] = useState(false)
   const [showMerge, setShowMerge] = useState<GroupMemberWithBalance | null>(null)
   const [copied, setCopied] = useState(false)
+  const [expandedMember, setExpandedMember] = useState<string | null>(null)
   const sorted = [...membersWithBalance].sort((a, b) => a.balance - b.balance)
   const router = useRouter()
   const supabase = createClient()
@@ -52,6 +54,11 @@ export default function AdminDashboard({
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+
+  function getMemberName(memberId: string) {
+    return membersWithBalance.find(m => m.id === memberId)?.display_name
+  }
+
   const totalDebt = membersWithBalance.reduce((acc, m) => acc + (m.balance < 0 ? m.balance : 0), 0)
 
   return (
@@ -108,7 +115,12 @@ export default function AdminDashboard({
           </h2>
           <div className="flex flex-col gap-2">
             {pendingTransactions.map(t => (
-              <TransactionItem key={t.id} transaction={t} showActions />
+              <TransactionItem
+                key={t.id}
+                transaction={t}
+                showActions
+                memberName={getMemberName(t.member_id)}
+              />
             ))}
           </div>
         </div>
@@ -126,39 +138,89 @@ export default function AdminDashboard({
           </button>
         </div>
         <div className="flex flex-col gap-2">
-          {sorted.map(m => (
-            <div
-              key={m.id}
-              className={'bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 flex justify-between items-center gap-2 border-l-2 ' +
-                (m.balance < 0 ? 'border-l-red-500/50' : m.balance > 0 ? 'border-l-emerald-500/50' : 'border-l-slate-700')}
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-100 truncate">{m.display_name}</p>
-                {m.is_virtual && <p className="text-xs text-slate-600">Virtual</p>}
+          {sorted.map(m => {
+            const isExpanded = expandedMember === m.id
+            const memberTxs = allTransactions
+              .filter(t => t.member_id === m.id)
+              .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+            return (
+              <div
+                key={m.id}
+                className={'bg-slate-900 border border-slate-800 rounded-xl border-l-2 ' +
+                  (m.balance < 0 ? 'border-l-red-500/50' : m.balance > 0 ? 'border-l-emerald-500/50' : 'border-l-slate-700')}
+              >
+                {/* Fila principal */}
+                <button
+                  onClick={() => setExpandedMember(isExpanded ? null : m.id)}
+                  className="w-full px-4 py-3 flex justify-between items-center gap-2 text-left"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-100 truncate">{m.display_name}</p>
+                    {m.is_virtual && <p className="text-xs text-slate-600">Virtual</p>}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <p className={'text-sm font-bold font-mono ' + (m.balance < 0 ? 'text-red-400' : m.balance > 0 ? 'text-emerald-400' : 'text-slate-500')}>
+                      {m.balance < 0 ? '-' : m.balance > 0 ? '+' : ''}${Math.abs(m.balance).toLocaleString('es-AR')}
+                    </p>
+                    {memberTxs.length > 0 && (
+                      <svg
+                        width="12" height="12" viewBox="0 0 12 12" fill="currentColor"
+                        className={'text-slate-600 transition-transform ' + (isExpanded ? 'rotate-180' : '')}
+                      >
+                        <path d="M6 8L1 3h10L6 8z"/>
+                      </svg>
+                    )}
+                  </div>
+                </button>
+
+                {/* Acciones (fusionar/eliminar) */}
+                {m.id !== membership.id && (
+                  <div className="px-4 pb-3 flex gap-1 justify-end -mt-1">
+                    <button
+                      onClick={() => setShowMerge(m)}
+                      aria-label={'Fusionar ' + m.display_name + ' con otro miembro'}
+                      className="text-xs text-slate-600 hover:text-amber-400 bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition-colors"
+                    >
+                      ⇄
+                    </button>
+                    <button
+                      onClick={() => handleDelete(m.id)}
+                      aria-label={'Eliminar ' + m.display_name}
+                      className="text-xs text-slate-600 hover:text-red-400 bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition-colors"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
+                {/* Detalle expandible */}
+                {isExpanded && memberTxs.length > 0 && (
+                  <div className="px-3 pb-3 flex flex-col gap-1.5 border-t border-slate-800 pt-3">
+                    {memberTxs.map(t => {
+                      const isCredit = t.type === 'credit'
+                      return (
+                        <div key={t.id} className="flex justify-between items-center gap-2 px-1">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-slate-300 truncate">
+                              {t.description ?? (isCredit ? 'Pago' : 'Gasto')}
+                            </p>
+                            <p className="text-xs text-slate-600">
+                              {new Date(t.created_at).toLocaleDateString('es-AR')}
+                              {t.status === 'pending' && <span className="ml-1 text-amber-500">· Pendiente</span>}
+                            </p>
+                          </div>
+                          <p className={'text-xs font-mono font-semibold shrink-0 ' + (isCredit ? 'text-emerald-400' : 'text-red-400')}>
+                            {isCredit ? '+' : '-'}${Number(t.amount).toLocaleString('es-AR')}
+                          </p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
-              <p className={'text-sm font-bold font-mono shrink-0 ' + (m.balance < 0 ? 'text-red-400' : m.balance > 0 ? 'text-emerald-400' : 'text-slate-500')}>
-                {m.balance < 0 ? '-' : m.balance > 0 ? '+' : ''}${Math.abs(m.balance).toLocaleString('es-AR')}
-              </p>
-              {m.id !== membership.id && (
-                <div className="flex gap-1 shrink-0">
-                  <button
-                    onClick={() => setShowMerge(m)}
-                    aria-label={'Fusionar ' + m.display_name + ' con otro miembro'}
-                    className="text-xs text-slate-600 hover:text-amber-400 bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition-colors"
-                  >
-                    ⇄
-                  </button>
-                  <button
-                    onClick={() => handleDelete(m.id)}
-                    aria-label={'Eliminar ' + m.display_name}
-                    className="text-xs text-slate-600 hover:text-red-400 bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded-lg transition-colors"
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
