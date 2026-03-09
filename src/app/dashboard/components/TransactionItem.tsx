@@ -5,9 +5,10 @@ interface Props {
   transaction: Transaction
   showActions?: boolean
   memberName?: string
+  expenseDescription?: string
 }
 
-export default function TransactionItem({ transaction, showActions, memberName }: Props) {
+export default function TransactionItem({ transaction, showActions, memberName, expenseDescription }: Props) {
   const isCredit = transaction.type === 'credit'
   const isPending = transaction.status === 'pending'
 
@@ -28,6 +29,11 @@ export default function TransactionItem({ transaction, showActions, memberName }
             {isPending && (
               <span className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full">
                 Pendiente
+              </span>
+            )}
+            {expenseDescription && (
+              <span className="text-xs text-slate-500">
+                {expenseDescription}
               </span>
             )}
             {transaction.payment_method && (

@@ -40,6 +40,7 @@ export interface Transaction {
   description: string | null
   status: TransactionStatus
   payment_method: PaymentMethod | null
+  expense_group_id: string | null
   created_by: string | null
   created_at: string
 }

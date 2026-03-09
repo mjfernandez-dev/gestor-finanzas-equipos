@@ -60,6 +60,7 @@ export default function CreateExpenseModal({ groupId, members, currentMemberId, 
     setError('')
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
+    const expenseGroupId = crypto.randomUUID()
     const transactions = splits.map(s => ({
       group_id: groupId,
       member_id: s.memberId,
@@ -67,6 +68,7 @@ export default function CreateExpenseModal({ groupId, members, currentMemberId, 
       amount: Math.round(s.amount * 100) / 100,
       description: description.trim(),
       status: 'approved' as const,
+      expense_group_id: expenseGroupId,
       created_by: user.id,
     }))
     const { error: txError } = await supabase.from('transactions').insert(transactions)

@@ -11,6 +11,7 @@ import GroupSelector from './GroupSelector'
 import UserMenu from './UserMenu'
 import EditGroupModal from './EditGroupModal'
 import MergeMemberModal from './MergeMemberModal'
+import ExpenseStatusRow from './ExpenseStatusRow'
 
 interface Props {
   group: Group
@@ -37,6 +38,7 @@ export default function AdminDashboard({
   const [showEditGroup, setShowEditGroup] = useState(false)
   const [showMerge, setShowMerge] = useState<GroupMemberWithBalance | null>(null)
   const [copied, setCopied] = useState(false)
+  const [copiedReminder, setCopiedReminder] = useState(false)
   const [expandedMember, setExpandedMember] = useState<string | null>(null)
   const sorted = [...membersWithBalance].sort((a, b) => a.balance - b.balance)
   const router = useRouter()
@@ -55,11 +57,43 @@ export default function AdminDashboard({
     setTimeout(() => setCopied(false), 2000)
   }
 
+  function copyReminder() {
+    const debtors = sorted.filter(m => m.balance < 0)
+    if (debtors.length === 0) return
+    const lines: string[] = [`💰 Saldo pendiente — ${group.name}`]
+    debtors.forEach(m => {
+      lines.push(`${m.display_name}: $${Math.abs(m.balance).toLocaleString('es-AR')}`)
+    })
+    if (group.payment_alias) lines.push(`\nTransferí a: ${group.payment_alias}`)
+    navigator.clipboard.writeText(lines.join('\n'))
+    setCopiedReminder(true)
+    setTimeout(() => setCopiedReminder(false), 2000)
+  }
+
   function getMemberName(memberId: string) {
     return membersWithBalance.find(m => m.id === memberId)?.display_name
   }
 
   const totalDebt = membersWithBalance.reduce((acc, m) => acc + (m.balance < 0 ? m.balance : 0), 0)
+
+  // Agrupar gastos por expense_group_id
+  const expenseGroups = (() => {
+    const debits = allTransactions.filter(t => t.type === 'debit' && t.expense_group_id)
+    const map = new Map<string, Transaction[]>()
+    debits.forEach(t => {
+      const key = t.expense_group_id!
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(t)
+    })
+    return Array.from(map.entries())
+      .map(([expense_group_id, debits]) => ({
+        expense_group_id,
+        description: debits[0].description ?? 'Gasto',
+        created_at: debits[0].created_at,
+        debits,
+      }))
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  })()
 
   return (
     <div className="min-h-screen text-slate-100 pb-10">
@@ -120,6 +154,29 @@ export default function AdminDashboard({
                 transaction={t}
                 showActions
                 memberName={getMemberName(t.member_id)}
+                expenseDescription={
+                  t.expense_group_id
+                    ? allTransactions.find(d => d.expense_group_id === t.expense_group_id && d.type === 'debit')?.description ?? undefined
+                    : undefined
+                }
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Vista de estado por gasto */}
+      {expenseGroups.length > 0 && (
+        <div className="mx-6 mt-5">
+          <h2 className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-3">Gastos</h2>
+          <div className="flex flex-col gap-2">
+            {expenseGroups.map(expense => (
+              <ExpenseStatusRow
+                key={expense.expense_group_id}
+                expense={expense}
+                allTransactions={allTransactions}
+                members={membersWithBalance}
+                paymentAlias={group.payment_alias}
               />
             ))}
           </div>
@@ -130,12 +187,22 @@ export default function AdminDashboard({
       <div className="mx-6 mt-5">
         <div className="flex justify-between items-center mb-3">
           <h2 className="text-xs font-medium text-slate-500 uppercase tracking-wide">Saldos por jugador</h2>
-          <button
-            onClick={() => setShowVirtualMember(true)}
-            className="text-xs text-emerald-500 hover:text-emerald-400 transition-colors"
-          >
-            + Virtual
-          </button>
+          <div className="flex items-center gap-3">
+            {sorted.some(m => m.balance < 0) && (
+              <button
+                onClick={copyReminder}
+                className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                {copiedReminder ? '✓ Copiado' : '📋 Recordatorio'}
+              </button>
+            )}
+            <button
+              onClick={() => setShowVirtualMember(true)}
+              className="text-xs text-emerald-500 hover:text-emerald-400 transition-colors"
+            >
+              + Virtual
+            </button>
+          </div>
         </div>
         <div className="flex flex-col gap-2">
           {sorted.map(m => {
