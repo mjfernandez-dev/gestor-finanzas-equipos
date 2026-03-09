@@ -6,6 +6,7 @@ import TransactionItem from './TransactionItem'
 import ReportPaymentModal from './ReportPaymentModal'
 import GroupSelector from './GroupSelector'
 import UserMenu from './UserMenu'
+import { useRealtimeRefresh } from '@/lib/useRealtimeRefresh'
 
 interface Props {
   group: Group
@@ -19,6 +20,7 @@ export default function MemberDashboard({ group, allGroups, membership, balance,
   const [showPayment, setShowPayment] = useState(false)
   const isNegative = balance < 0
   const isZero = balance === 0
+  useRealtimeRefresh(group.id)
 
   return (
     <div className="min-h-screen text-slate-100 pb-10">

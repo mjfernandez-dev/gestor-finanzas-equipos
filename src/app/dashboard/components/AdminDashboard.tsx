@@ -12,6 +12,7 @@ import UserMenu from './UserMenu'
 import EditGroupModal from './EditGroupModal'
 import MergeMemberModal from './MergeMemberModal'
 import ExpenseStatusRow from './ExpenseStatusRow'
+import { useRealtimeRefresh } from '@/lib/useRealtimeRefresh'
 
 interface Props {
   group: Group
@@ -43,6 +44,7 @@ export default function AdminDashboard({
   const sorted = [...membersWithBalance].sort((a, b) => a.balance - b.balance)
   const router = useRouter()
   const supabase = createClient()
+  useRealtimeRefresh(group.id)
 
   async function handleDelete(memberId: string) {
     if (!window.confirm('¿Eliminar este miembro? Se borrarán sus transacciones.')) return
