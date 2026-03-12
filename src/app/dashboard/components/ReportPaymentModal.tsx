@@ -10,6 +10,7 @@ interface Props {
   memberId: string
   paymentAlias: string | null
   onClose: () => void
+  preloadedFiles?: File[]
 }
 
 interface ExpenseOption {
@@ -18,7 +19,9 @@ interface ExpenseOption {
   amount: number
 }
 
-export default function ReportPaymentModal({ groupId, memberId, paymentAlias, onClose }: Props) {
+export default function ReportPaymentModal({ groupId, memberId, paymentAlias, onClose, preloadedFiles = [] }: Props) {
+  const [proofFile, setProofFile] = useState<File | null>(preloadedFiles[0] ?? null)
+  const [proofPreview, setProofPreview] = useState<string | null>(preloadedFiles[0] ? URL.createObjectURL(preloadedFiles[0]) : null)
   // Paso 1: selección del gasto | Paso 2: confirmar pago
   const [step, setStep] = useState<1 | 2>(1)
   const [expenseOptions, setExpenseOptions] = useState<ExpenseOption[]>([])
@@ -83,6 +86,14 @@ export default function ReportPaymentModal({ groupId, memberId, paymentAlias, on
     setTimeout(() => setCopiedAlias(false), 2000)
   }
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) {
+      setProofFile(file)
+      setProofPreview(URL.createObjectURL(file))
+    }
+  }
+
   async function handleSubmit() {
     const num = parseFloat(customAmount)
     if (!num || num <= 0) {
@@ -91,6 +102,19 @@ export default function ReportPaymentModal({ groupId, memberId, paymentAlias, on
     }
     setLoading(true)
     setError('')
+
+    let proofUrl: string | null = null
+    
+    if (proofFile) {
+      const fileExt = proofFile.name.split('.').pop()
+      const fileName = `${memberId}/${Date.now()}.${fileExt}`
+      const { error: uploadError } = await supabase.storage.from('payment-proofs').upload(fileName, proofFile)
+      if (!uploadError) {
+        const { data } = supabase.storage.from('payment-proofs').getPublicUrl(fileName)
+        proofUrl = data.publicUrl
+      }
+    }
+
     const { error: insertError } = await supabase.from('transactions').insert({
       group_id: groupId,
       member_id: memberId,
@@ -100,6 +124,7 @@ export default function ReportPaymentModal({ groupId, memberId, paymentAlias, on
       payment_method: method,
       description: selectedExpense ? `Pago — ${selectedExpense.description}` : 'Pago reportado',
       expense_group_id: selectedExpense?.expense_group_id ?? null,
+      proof_url: proofUrl,
     })
     if (insertError) {
       setError(insertError.message)
@@ -229,6 +254,37 @@ export default function ReportPaymentModal({ groupId, memberId, paymentAlias, on
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Comprobante */}
+            <div>
+              <label className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2 block">
+                Comprobante {proofPreview && <span className="text-emerald-400 normal-case font-normal">✓ adjunto</span>}
+              </label>
+              {proofPreview ? (
+                <div className="relative rounded-xl overflow-hidden border border-slate-700">
+                  <img src={proofPreview} alt="Comprobante" className="w-full h-32 object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => { setProofFile(null); setProofPreview(null) }}
+                    className="absolute top-2 right-2 bg-black/60 text-white p-1 rounded-lg hover:bg-black/80"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-700 hover:border-slate-500 rounded-xl cursor-pointer transition-colors">
+                  <div className="flex flex-col items-center gap-1 text-slate-500">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                    </svg>
+                    <span className="text-xs">Subir comprobante</span>
+                  </div>
+                  <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" />
+                </label>
+              )}
             </div>
 
             {error && <p role="alert" className="text-red-400 text-sm">{error}</p>}

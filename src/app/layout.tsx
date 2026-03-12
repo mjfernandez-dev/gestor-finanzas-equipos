@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegistration from "./ServiceWorkerRegistration";
 import InstallPrompt from "./components/InstallPrompt";
+import { SharedFilesHandler } from "@/lib/sharedFiles";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
       >
         <ServiceWorkerRegistration />
         <InstallPrompt />
+        <SharedFilesHandler />
         {children}
       </body>
     </html>

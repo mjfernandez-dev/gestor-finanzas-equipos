@@ -7,6 +7,8 @@ import ReportPaymentModal from './ReportPaymentModal'
 import GroupSelector from './GroupSelector'
 import UserMenu from './UserMenu'
 import { useRealtimeRefresh } from '@/lib/useRealtimeRefresh'
+import SharedFilesListener from './SharedFilesListener'
+import { SharedFile } from '@/lib/sharedFiles'
 
 interface Props {
   group: Group
@@ -18,12 +20,19 @@ interface Props {
 
 export default function MemberDashboard({ group, allGroups, membership, balance, recentTransactions }: Props) {
   const [showPayment, setShowPayment] = useState(false)
+  const [preloadedFiles, setPreloadedFiles] = useState<File[]>([])
   const isNegative = balance < 0
   const isZero = balance === 0
   useRealtimeRefresh(group.id)
 
+  const handleOpenPaymentModal = (files: SharedFile[]) => {
+    setPreloadedFiles(files.map(f => f.file))
+    setShowPayment(true)
+  }
+
   return (
     <div className="min-h-screen text-slate-100 pb-10">
+      <SharedFilesListener onOpenPaymentModal={handleOpenPaymentModal} />
       {/* Header */}
       <div className="px-6 pt-10 pb-4 flex justify-between items-start">
         <div>
@@ -77,7 +86,8 @@ export default function MemberDashboard({ group, allGroups, membership, balance,
           groupId={group.id}
           memberId={membership.id}
           paymentAlias={group.payment_alias}
-          onClose={() => setShowPayment(false)}
+          onClose={() => { setShowPayment(false); setPreloadedFiles([]) }}
+          preloadedFiles={preloadedFiles}
         />
       )}
     </div>
